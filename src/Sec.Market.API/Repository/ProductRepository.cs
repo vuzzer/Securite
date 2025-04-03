@@ -1,8 +1,10 @@
 ﻿
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Sec.Market.API.Data;
 using Sec.Market.API.Entites;
 using Sec.Market.API.Interfaces;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -11,10 +13,12 @@ namespace Sec.Market.API.Repository
     public class ProductRepository: IProductRepository
     {
         public readonly MarketContext _context;
+        private readonly IConfiguration _configuration;
 
-        public ProductRepository(MarketContext context)
+        public ProductRepository(MarketContext context , IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
 
@@ -34,11 +38,57 @@ namespace Sec.Market.API.Repository
             return _context.SaveChangesAsync();
         }
 
-        public Task<List<Product>> SearchProducts(string filter)
+        public async Task<List<Product>> SearchProducts(string filter)
         {
-            
-            return _context.Products.FromSqlRaw($"SELECT * FROM Products WHERE Name LIKE '%{filter}%' OR Description LIKE '%{filter}%'")
-                .ToListAsync();
+            string? connectionString = _configuration.GetConnectionString("DefaultConnection");
+            using (var connexion = new SqlConnection(connectionString))
+            {
+                await connexion.OpenAsync();
+                string requete = "SELECT * FROM Products WHERE Name LIKE @filter OR Description LIKE @filter";
+
+                SqlDataAdapter myCommand = new SqlDataAdapter(requete, connexion);
+                SqlParameter parm = myCommand.SelectCommand.Parameters.Add("@filter",
+                    SqlDbType.VarChar, 11);
+                parm.Value = "%" + filter + "%";
+
+                var dataTable = new DataTable();
+
+                // Remplir le DataTable avec les données récupérées
+                myCommand.Fill(dataTable);
+
+                if (dataTable.Rows.Count > 0)
+                {
+
+                    // Créer une liste Product qui contiendra les produits récupérer
+                    List<Product> products = new List<Product>();
+                    foreach(DataRow row in dataTable.Rows)
+                    {
+                        Product product = new Product
+                        {
+                            Id = Convert.ToInt32(row["Id"]),
+                            Name = row["Name"].ToString(),
+                            Description = row["Description"].ToString(),
+                            Image = row["Image"].ToString(),
+                            Price = Convert.ToInt32(row["Price"]),
+                            DateCreation = (DateTime)row["DateCreation"]
+                        };
+
+                        products.Add(product);
+                    }
+                    
+
+                    return products;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+
+
+
+            //return _context.Products.FromSqlRaw($"SELECT * FROM Products WHERE Name LIKE '%{filter}%' OR Description LIKE '%{filter}%'")
+            //    .ToListAsync();
         }
 
         public Task UpdateProduct(Product product)
