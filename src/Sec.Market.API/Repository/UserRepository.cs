@@ -35,9 +35,9 @@ namespace Sec.Market.API.Repository
 
                 SqlDataAdapter myCommand = new SqlDataAdapter(requete, connexion);
                 SqlParameter parm1 = myCommand.SelectCommand.Parameters.Add("@email",
-                    SqlDbType.VarChar, 11);
+                    SqlDbType.VarChar);
                 SqlParameter parm2 = myCommand.SelectCommand.Parameters.Add("@pwd",
-                    SqlDbType.VarChar, 11);
+                    SqlDbType.VarChar);
                 parm1.Value = email;
                 parm2.Value = pwd;
 
@@ -69,8 +69,6 @@ namespace Sec.Market.API.Repository
                     return null;
                 }
             }
-            //return _context.Users.FromSqlRaw("SELECT * FROM Users WHERE Email = '" + email + "' AND Password = '" + pwd + "'")
-            //    .SingleOrDefaultAsync();
         }
 
         public async Task<User?> GetUserById(int userId)
@@ -78,12 +76,12 @@ namespace Sec.Market.API.Repository
             string? connectionString = _configuration.GetConnectionString("DefaultConnection");
             using (var connexion = new SqlConnection(connectionString))
             {
-               await connexion.OpenAsync();
+                await connexion.OpenAsync();
                 string requete = "SELECT * FROM Users WHERE Id = @userId";
 
                 SqlDataAdapter myCommand = new SqlDataAdapter(requete, connexion);
                 SqlParameter parm = myCommand.SelectCommand.Parameters.Add("@userId",
-                    SqlDbType.VarChar, 11);
+                    SqlDbType.VarChar);
                 parm.Value = userId;
 
                 var dataTable = new DataTable();
@@ -114,9 +112,6 @@ namespace Sec.Market.API.Repository
                     return null;
                 }
             }
-
-            //return _context.Users.FromSqlRaw("SELECT * FROM Users WHERE Id = " + userId)
-            //    .SingleOrDefaultAsync();
         }
 
         public Task<List<User>> GetUsers()

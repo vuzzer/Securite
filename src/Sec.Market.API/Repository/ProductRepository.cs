@@ -48,7 +48,7 @@ namespace Sec.Market.API.Repository
 
                 SqlDataAdapter myCommand = new SqlDataAdapter(requete, connexion);
                 SqlParameter parm = myCommand.SelectCommand.Parameters.Add("@filter",
-                    SqlDbType.VarChar, 11);
+                    SqlDbType.VarChar);
                 parm.Value = "%" + filter + "%";
 
                 var dataTable = new DataTable();
@@ -84,11 +84,6 @@ namespace Sec.Market.API.Repository
                     return null;
                 }
             }
-
-
-
-            //return _context.Products.FromSqlRaw($"SELECT * FROM Products WHERE Name LIKE '%{filter}%' OR Description LIKE '%{filter}%'")
-            //    .ToListAsync();
         }
 
         public Task UpdateProduct(Product product)

@@ -36,9 +36,9 @@ namespace Sec.Market.API.Repository
 
                 SqlDataAdapter myCommand = new SqlDataAdapter(requete, connexion);
                 SqlParameter parm1 = myCommand.SelectCommand.Parameters.Add("@cardNumber",
-                    SqlDbType.VarChar, 11);
+                    SqlDbType.VarChar);
                 SqlParameter parm2 = myCommand.SelectCommand.Parameters.Add("@userId",
-                    SqlDbType.VarChar, 11);
+                    SqlDbType.VarChar);
                 parm1.Value = cardNumber;
                 parm2.Value = userId;
 
@@ -70,8 +70,6 @@ namespace Sec.Market.API.Repository
                     return null;
                 }
             }
-            //return _context.Cards.FromSqlRaw("SELECT * FROM Cards WHERE Number = '" + cardNumber + "' AND UserId = '" + userId + "'")
-            //   .SingleOrDefaultAsync();
         }
     }
    
